@@ -92,8 +92,46 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # TODO
-    raise NotImplementedError
+    # Set up data structure
+    frontier = QueueFrontier()
+    new_node = Node(source, None, None)
+    frontier.add(new_node)
+
+    # Keep track of explored states
+    explored = set()
+
+    # BFS Search Algorithm
+    while not frontier.empty():
+        # Retrieve & Remove Node 
+        current_node = frontier.remove()
+
+        # Target Found then construct the path.
+        if current_node.state == target:
+            
+            # Construct Path
+            path = []
+            
+            # Backtracking to the first node.
+            while current_node.parent is not None:
+                path.append((current_node.action, current_node.state))
+                current_node = current_node.parent
+
+            # Reverse Path (Since we backtracked)
+            path.reverse()
+            return path
+
+        # Mark current node as explored.
+        explored.add(current_node.state)
+        
+        # Add neighbors to frontier if not explored
+        for movie_id, person_id in neighbors_for_person(current_node.state):
+            if person_id not in explored and not frontier.contains_state(person_id):
+                child_node = Node(person_id, current_node, movie_id)
+                frontier.add(child_node)
+        
+
+    # Handle no path exists 
+    return None
 
 
 def person_id_for_name(name):
