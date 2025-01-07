@@ -72,7 +72,7 @@ def transition_model(corpus, page, damping_factor):
             if each_page in corpus[page]:
                 # With d distribute probability over the links
                 probability[each_page] = damping_factor / num_links
-                # Initialize probability for non linked page       
+                # Initialize probability for non linked page
             else:
                 probability[each_page] = 0
 
@@ -91,7 +91,32 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+
+    # Initialize page_rank pages to 0 count
+    page_rank = {page: 0 for page in corpus}
+
+    # Initialize random page
+    random_page = random.choice(list(corpus.keys()))
+
+    # Perform samples
+    for _ in range(n):
+        # Transition probability for current page
+        transition_weights = transition_model(corpus, random_page, damping_factor)
+
+        # Pages in distribution
+        pages = list(transition_weights.keys())
+        # Probability Distribution
+        probability_distribution = list(transition_weights.values())
+
+        random_page = random.choices(pages, weights=probability_distribution, k=1)[0]
+        # Increment page count
+        page_rank[random_page] += 1
+
+    # Proportions of sampling to each page
+    for each_page in corpus:
+        page_rank[each_page] /= n
+
+    return page_rank
 
 
 def iterate_pagerank(corpus, damping_factor):
@@ -103,7 +128,45 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+
+    threshold = 0.001
+    # Number of pages in corpus
+    N = len(corpus)
+    # Initialize page_rank with pages of equal probability
+    page_rank = {page: 1/N for page in corpus}
+
+    # Treat as linking to all pages for no outgoing link
+    for page in corpus:
+        if len(corpus[page]) == 0:
+            corpus[page] = set(corpus.keys())
+
+    while True:
+        # Hold updated page_rank
+        track_page_rank = {}
+        max_change = 0
+
+        for page in corpus:
+            summation = 0
+            # Check if each page in the corpus links to the page
+            for other_page in corpus:
+                if page in corpus[other_page]:
+                    summation += page_rank[other_page] / len(corpus[other_page])
+
+            # Applying pagerank formula
+            track_page_rank[page] = (1 - damping_factor) / N + (damping_factor * summation)
+
+        # Checking change in probability
+        for page in corpus:
+            max_change = max(max_change, abs(track_page_rank[page] - page_rank[page]))
+
+        # Check for convergence
+        if max_change < threshold:
+            break
+
+        # Update page_rank if no convergence
+        page_rank = track_page_rank
+
+    return page_rank
 
 
 if __name__ == "__main__":
