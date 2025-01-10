@@ -143,7 +143,9 @@ def joint_probability(people, one_gene, two_genes, have_trait):
     # Initialize Joint Probability
     joint_probability = 1.0
 
+
     for person in people:
+        # Count gene for  person
         if person in one_gene:
             gene_count = 1
         elif person in two_genes:
@@ -151,16 +153,46 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         else:
             gene_count = 0
         
+        # Know parents of person
         mother = people[person]["mother"]
         father = people[person]["father"]
 
-        if mother is None and father is None:
-            gene_probability = PROBS["gene"][gene_count]
-        else:
-            pass
 
+        if mother is None and father is None:
+            # Base condition: no parents, base gene probability on gene count of person
+            gene_probability = PROBS["gene"][gene_count]
+        else: 
+            # Handle condition: parents known
+
+            def get_parents_probability(parent):
+                if parent in one_gene:
+                    return 0.5 # Half chance gene from mother or father
+                elif parent in two_genes:
+                    return 1 - PROBS["mutation"] # High gene probability
+                else:
+                    return PROBS["mutation"] # Mutation probability if no parents have 'the gene'
+
+            # Get parents probability of transferring genes  
+            mother_probability = get_parents_probability(mother)
+            father_probability = get_parents_probability(father)
+            
+            # Based on gene count of person calculate probability of receving parents genes.
+            if gene_count == 2: # From both mother and father genes
+                gene_probability = mother_probability * father_probability
+            elif gene_count == 1: # Either from mother or father genes
+                gene_probability = (
+                    mother_probability * (1 - father_probability)
+                    +
+                    father_probability * (1 - mother_probability)
+                )
+            else: # No gene received from father and mother
+                gene_probability = (1- mother_probability) * (1 - father_probability)
+
+        # Calculate Trait probability
         has_trait = person in have_trait
         trait_probability = PROBS["trait"][gene_count][has_trait]
+        
+        # Calculate Joint Probability_
         joint_probability *= gene_probability * trait_probability
 
     return joint_probability
@@ -173,7 +205,26 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
-    raise NotImplementedError
+
+    for person in probabilities:
+
+        # Determine gene count
+        if person in two_genes:
+            gene_count = 2
+        elif person in one_gene:
+            gene_count = 1
+        else:
+            gene_count = 0
+
+
+        # update gene probability based on count
+        probabilities[person]["gene"][gene_count] += p
+
+        # Determine current person has trait
+        has_trait = person in have_trait
+
+        # person has trait update the probability
+        probabilities[person]["trait"][has_trait] += p
 
 
 def normalize(probabilities):
