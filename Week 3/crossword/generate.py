@@ -117,7 +117,30 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        revised = False
+
+        # Get tuple of overlap positions of letters
+        overlap = self.crossword.overlaps[x, y]
+
+        if overlap is None:
+            return revised
+        
+        i, j = overlap
+
+        # Remove value from x domain if no corresponding value for y
+        for word_x in set(self.domains(x)):
+            match_found = False
+            for word_y in self.domains(y):
+                # Match found no need for further check for binary constraint
+                if word_x[i] == word_y[j]:
+                    match_found = True
+                    break
+            # Satisfy binary constraint
+            if match_found == False:
+                self.domains[x].remove(word_x)
+                revised = True
+
+        return revised
 
     def ac3(self, arcs=None):
         """
@@ -128,6 +151,7 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
+        self.revise(Variable(6, 5, 'across', 6), Variable(1, 12, 'down', 7))
         raise NotImplementedError
 
     def assignment_complete(self, assignment):
