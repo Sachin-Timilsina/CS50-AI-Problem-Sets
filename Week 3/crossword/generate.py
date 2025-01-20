@@ -128,9 +128,9 @@ class CrosswordCreator():
         i, j = overlap
 
         # Remove value from x domain if no corresponding value for y
-        for word_x in set(self.domains(x)):
+        for word_x in set(self.domains[x]):
             match_found = False
-            for word_y in self.domains(y):
+            for word_y in self.domains[y]:
                 # Match found no need for further check for binary constraint
                 if word_x[i] == word_y[j]:
                     match_found = True
@@ -173,9 +173,9 @@ class CrosswordCreator():
                     return False
                 
                 # Again add neighbors to the arc list for recheck of constraints.
-                for z in self.neighbors(x):
+                for z in self.crossword.neighbors(x):
                     if z != y:
-                        queue.append(z, x)
+                        queue.append((z, x))
 
         # Arc Consitent!
         return True
@@ -215,7 +215,7 @@ class CrosswordCreator():
 
                 if neighbor in assignment:
                     # If the overlap of word and it's neighbor one at a time.
-                    overlap = self.crossword.overlap[variable, neighbor]
+                    overlap = self.crossword.overlaps[variable, neighbor]
                     if overlap:
                         var_pos, neighbor_pos = overlap
 
@@ -236,14 +236,14 @@ class CrosswordCreator():
         conflicts = []
 
         # Check each word in domain
-        for word in self.domains(var):
+        for word in self.domains[var]:
             conflict_count = 0
             
             # Get neighbors of var
-            for neighbor in self.crossword.neighbor(var):
+            for neighbor in self.crossword.neighbors(var):
                 if neighbor not in assignment:
                     # Get overlap of neighbor var and var.
-                    overlap = self.crossword.overlap[var, neighbor]
+                    overlap = self.crossword.overlaps[var, neighbor]
                     if overlap:
                         i, j = overlap
                         # Get each neighbor word
@@ -282,7 +282,7 @@ class CrosswordCreator():
                 degree = len(self.crossword.neighbors(var))
 
                 # New minimum remaining value assign it.
-                if len(remaining_value) < minimum_remaining_value:
+                if remaining_value < minimum_remaining_value:
                     unassigned_var = var
                     minimum_remaining_value = remaining_value
                     highest_degree = degree
@@ -314,7 +314,7 @@ class CrosswordCreator():
         var = self.select_unassigned_variable(assignment)
 
         # For each value in the var domain
-        for value in self.order_domain_values(var):
+        for value in self.order_domain_values(var, assignment):
 
             # Assign var to the value
             new_assignment = assignment.copy()
