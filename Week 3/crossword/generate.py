@@ -232,7 +232,34 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        raise NotImplementedError
+        # Store list of tuple of (word, conflict count)
+        conflicts = []
+
+        # Check each word in domain
+        for word in self.domains(var):
+            conflict_count = 0
+            
+            # Get neighbors of var
+            for neighbor in self.crossword.neighbor(var):
+                if neighbor not in assignment:
+                    # Get overlap of neighbor var and var.
+                    overlap = self.crossword.overlap[var, neighbor]
+                    if overlap:
+                        i, j = overlap
+                        # Get each neighbor word
+                        for neighbor_word in self.domains[neighbor]:
+                            # Conflict, increase count
+                            if word[i] != neighbor_word[j]:
+                                conflict_count += 1
+            
+            # add conflicts to list
+            conflicts.append((word, conflict_count))
+        
+        # Sort based on the conflict_count of tuples in the list
+        conflicts.sort(key= lambda x: x[1])
+
+        # Return the sorted words ini domain according to ascending order of conflict.
+        return [word for word, _ in conflicts]
 
     def select_unassigned_variable(self, assignment):
         """
