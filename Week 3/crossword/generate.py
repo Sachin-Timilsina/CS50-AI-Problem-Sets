@@ -286,6 +286,7 @@ class CrosswordCreator():
                     unassigned_var = var
                     minimum_remaining_value = remaining_value
                     highest_degree = degree
+
                 # Minimum remaining value is tie, then choose highest degree.
                 elif remaining_value == minimum_remaining_value:
                     if degree > highest_degree:
@@ -304,7 +305,31 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        raise NotImplementedError
+        
+        # Return assignment if complete
+        if self.assignment_complete(assignment):
+            return assignment
+        
+        # Select unassigned variable
+        var = self.select_unassigned_variable(assignment)
+
+        # For each value in the var domain
+        for value in self.order_domain_values(var):
+
+            # Assign var to the value
+            new_assignment = assignment.copy()
+            new_assignment[var] = value
+
+            # Check if the new assignment consistent
+            if self.consistent(new_assignment):
+                # Recursively backtrack till assignment complete
+                result = self.backtrack(new_assignment)
+
+                if result is not None:
+                    return result
+        
+        # If backtrack found no consistent assginment.
+        return None
 
 
 def main():
