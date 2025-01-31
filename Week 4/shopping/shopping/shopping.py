@@ -59,7 +59,65 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    evidence = []
+    labels = []
+    month_map = {
+        'Jan': 0,
+        'Feb': 1,
+        'Mar': 2,
+        'Apr': 3, 
+        'May': 4,
+        'Jun': 5,
+        'Jul': 6,
+        'Aug': 7,
+        'Sep': 8,
+        'Oct': 9,
+        'Nov': 10,
+        'Dec': 11 
+    }
+    with open(filename, 'r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            evidence_entry = []
+
+            for key, value in row.items():
+                value = value.strip()
+
+                if key in {
+                    'Administrative',
+                    'Informational',
+                    'ProductRelated',
+                    'Month',
+                    'OperatingSystems',
+                    'Browser',
+                    'Region',
+                    'TrafficType',
+                    'VisitorType',
+                    'Weekend'
+                    }:
+
+                    if key == 'Month':
+                        evidence_entry.append(month_map[value])
+
+                    elif key == 'VisitorType':
+                        evidence_entry.append(1 if value == 'Returning_Visitor' else 0)
+
+                    elif key == 'Weekend':
+                        value = value.lower()
+                        evidence_entry.append(1 if value == 'true' else 0)
+
+                    else:
+                        evidence_entry.append(int(value))
+
+                elif key == 'Revenue':
+                    value = value.lower()
+                    labels.append(1 if value == 'true' else 0)
+
+                else:
+                    evidence_entry.append(float(value))
+            
+            evidence.append(evidence_entry)
+    return (evidence, labels)
 
 
 def train_model(evidence, labels):
@@ -67,6 +125,7 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
+    
     raise NotImplementedError
 
 
