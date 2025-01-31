@@ -59,8 +59,10 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
+    # List of evidence and labels
     evidence = []
     labels = []
+
     month_map = {
         'Jan': 0,
         'Feb': 1,
@@ -75,14 +77,20 @@ def load_data(filename):
         'Nov': 10,
         'Dec': 11 
     }
+
+    # Open and read csv.
     with open(filename, 'r') as file:
         csv_reader = csv.DictReader(file)
+
+        # Read each entry of shopping data
         for row in csv_reader:
+            # List to hold evidence for a single entry
             evidence_entry = []
 
             for key, value in row.items():
                 value = value.strip()
 
+                # If columns needed in int.
                 if key in {
                     'Administrative',
                     'Informational',
@@ -96,27 +104,35 @@ def load_data(filename):
                     'Weekend'
                     }:
 
+                    # Append with month number
                     if key == 'Month':
                         evidence_entry.append(month_map[value])
 
+                    # Numerical data for visitor type
                     elif key == 'VisitorType':
                         evidence_entry.append(1 if value == 'Returning_Visitor' else 0)
 
+                    # Numerical data for weekend instead of boolean value.
                     elif key == 'Weekend':
                         value = value.lower()
                         evidence_entry.append(1 if value == 'true' else 0)
 
                     else:
                         evidence_entry.append(int(value))
-
+                
+                # Append revenue in labels.
                 elif key == 'Revenue':
                     value = value.lower()
                     labels.append(1 if value == 'true' else 0)
 
+                # Append duration columns as float for evidence.
                 else:
                     evidence_entry.append(float(value))
             
+            # Append the single evidence_entry to list of evidences
             evidence.append(evidence_entry)
+
+    # Result tuple of evidence's list and label's list
     return (evidence, labels)
 
 
@@ -125,7 +141,7 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    
+
     raise NotImplementedError
 
 
