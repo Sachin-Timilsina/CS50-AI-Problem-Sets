@@ -129,7 +129,7 @@ class NimAI():
 
         # Find Q-value
         q_value = old_q + self.alpha * ((reward + future_rewards) - old_q)
-        
+
         # Set Q-value
         self.q[(state_tuple, action)] = q_value
 
@@ -143,7 +143,23 @@ class NimAI():
         Q-value in `self.q`. If there are no available actions in
         `state`, return 0.
         """
-        raise NotImplementedError
+
+        actions = Nim.available_actions(state)
+
+        # Check if no actions available
+        if not actions:
+            return 0
+        
+        # Set max_q_value to 0
+        max_q_value = 0
+
+        # Iterate all action and find max Q-value in the state.
+        for action in actions:
+            current_action_q_value = self.get_q_value(state, action)
+            if current_action_q_value > max_q_value:
+                max_q_value = current_action_q_value
+
+        return max_q_value
 
     def choose_action(self, state, epsilon=True):
         """
