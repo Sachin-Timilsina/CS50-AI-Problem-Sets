@@ -104,10 +104,7 @@ class NimAI():
 
         state_tuple = tuple(state)
         
-        if (state_tuple, action) in self.q:
-            return self.q[(state_tuple, action)]
-        else:
-            return 0
+        return self.q.get((state_tuple, action), 0)
 
     def update_q_value(self, state, action, old_q, reward, future_rewards):
         """
@@ -176,7 +173,26 @@ class NimAI():
         If multiple actions have the same Q-value, any of those
         options is an acceptable return value.
         """
-        raise NotImplementedError
+        actions = Nim.available_actions(state)
+
+        if not actions:
+            return None
+
+        # Epsilon greedy: explore with probability epsilon
+        if epsilon and random.random() < self.epsilon:
+            return random.choice(tuple(actions))
+        
+        # Exploit startegy: choose best option.
+        best_action = None
+        highest_q_value = -float('inf')
+    
+        for action in actions:
+            q_value = self.get_q_value(state, action)
+            if q_value >= highest_q_value:
+                highest_q_value = q_value
+                best_action = action
+
+        return best_action
 
 
 def train(n):
