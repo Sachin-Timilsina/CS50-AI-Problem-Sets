@@ -64,7 +64,7 @@ def preprocess(sentence):
     """
 
     # Convert Sentences to a list of its words
-    words = sentence.split()
+    words = nltk.word_tokenize(sentence)
 
     # Lowercase
     words = [word.lower() for word in words]
@@ -82,6 +82,9 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
+
+
+
     raise NotImplementedError
 
 
