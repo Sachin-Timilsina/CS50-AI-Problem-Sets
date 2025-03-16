@@ -1,4 +1,5 @@
 import nltk
+nltk.download('punkt_tab')
 import sys
 
 TERMINALS = """
@@ -15,9 +16,10 @@ V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-S -> NP VP
-NP -> Det N | N | NP PP
-VP -> V | V NP | VP PP
+S -> NP VP | S Conj S | NP VP SubConj S
+NP -> Det N | N | NP PP | Det Adj N | Det AP N
+AP -> Adj | Adj AP
+VP -> V | V NP | VP PP | Adv VP | V NP Adv | VP Conj VP | V Adv | VP Adv
 PP -> P NP
 """
 
@@ -86,9 +88,18 @@ def np_chunk(tree):
     noun phrases as subtrees.
     """
 
+    np_chunks = []
 
+    # Take the subtee with NP label
+    for subtree in tree.subtrees(lambda x: x.label() == "NP"):
+        
+        # Ensure no more smaller NP inside
+        if not any(child.label() == "NP" for child in subtree.subtrees(lambda x: x != subtree)):
 
-    raise NotImplementedError
+            # Valid np chunk
+            np_chunks.append(subtree)
+
+    return np_chunks
 
 
 if __name__ == "__main__":
