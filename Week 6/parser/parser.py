@@ -70,7 +70,7 @@ def preprocess(sentence):
     words = [word.lower() for word in words]
 
     # Filter Words
-    filtered_words = [word for word in words if c.isalpha() for c in word]
+    filtered_words = [word for word in words if any(c.isalpha() for c in word)]
 
     return filtered_words
 
