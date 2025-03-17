@@ -45,7 +45,7 @@ def get_mask_token_index(mask_token_id, inputs):
     Return the index of the token with the specified `mask_token_id`, or
     `None` if not present in the `inputs`.
     """
-    
+
     # Loop over token IDs and find the MASK token
     for idx, token in enumerate(inputs.input_ids[0]):
         if token == mask_token_id:
@@ -61,6 +61,9 @@ def get_color_for_attention_score(attention_score):
     given `attention_score`. Each value should be in the range [0, 255].
     """
 
+    # Convert the EagerTensor to a python float
+    attention_score = float(attention_score.numpy())
+    
     # Ensure attention_score between 0 and 1
     attention_score = max(0, min(1, attention_score))
 
@@ -82,7 +85,7 @@ def visualize_attentions(tokens, attentions):
     include both the layer number (starting count from 1) and head number
     (starting count from 1).
     """
-    
+
     for i in range(12):
         for k in range(12):
             generate_diagram(
